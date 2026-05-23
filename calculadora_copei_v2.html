@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>COPEI | El Nuevo Camino al Ahorro - Pasivos Laborales y Sostenibilidad Fiscal</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #f0f7fc;
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            padding: 32px 24px;
+            color: #103a4c;
+        }
+        .container {
+            max-width: 1500px; margin: 0 auto; background: white;
+            border-radius: 32px; box-shadow: 0 20px 40px -12px rgba(0,40,60,0.15); overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(115deg, #0a4c6e 0%, #0c3e5a 100%);
+            padding: 28px 36px; display: flex; align-items: center;
+            justify-content: space-between; flex-wrap: wrap; gap: 20px;
+            border-bottom: 4px solid #3b9bd5;
+        }
+        .logo-copei {
+            background: white; border-radius: 80px; padding: 10px 28px;
+            font-weight: 800; font-size: 1.9rem; letter-spacing: 2px;
+            color: #0a4c6e; box-shadow: 0 6px 14px rgba(0,0,0,0.1);
+        }
+        .title-side h1 { color: white; font-size: 1.6rem; font-weight: 600; }
+        .title-side p  { color: #cde9f5; font-size: 0.85rem; }
+        .badge { background: #2c7fb8; padding: 6px 20px; border-radius: 40px; color: white; font-weight: 500; }
+
+        /* ── TABS ── */
+        .tabs { display: flex; gap: 6px; background: white; padding: 0 32px; border-bottom: 1px solid #cde2ec; flex-wrap: wrap; }
+        .tab-btn {
+            background: transparent; border: none; padding: 14px 22px;
+            font-size: 0.9rem; font-weight: 600; cursor: pointer;
+            color: #2c6e8f; border-bottom: 3px solid transparent; transition: 0.2s;
+        }
+        .tab-btn.active { color: #0f6b8c; border-bottom-color: #0f6b8c; background: #f5fbfe; }
+        .tab-content { display: none; padding: 32px; animation: fade 0.2s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fade { from { opacity: 0; transform: translateY(6px);} to { opacity: 1; transform: translateY(0);} }
+
+        /* ── FORMS ── */
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; margin-bottom: 28px; }
+        .input-group { display: flex; flex-direction: column; gap: 8px; }
+        .input-group label { font-weight: 700; color: #185e7c; font-size: 0.85rem; }
+        .input-group input, .input-group select {
+            padding: 12px 16px; border: 1.5px solid #cbe0ea; border-radius: 28px;
+            font-size: 1rem; background: white; outline: none;
+        }
+        .input-group input:focus, .input-group select:focus { border-color: #2c7fb8; box-shadow: 0 0 0 3px rgba(44,127,184,0.12); }
+
+        /* ── BUTTONS ── */
+        .btn-group { display: flex; gap: 16px; margin: 16px 0 28px; flex-wrap: wrap; }
+        .btn-calc, .btn-clear, .btn-reset {
+            padding: 12px 28px; border-radius: 40px; font-weight: 700; border: none; cursor: pointer; transition: 0.2s; font-size: 0.9rem;
+        }
+        .btn-calc  { background: #1c6d9e; color: white; box-shadow: 0 4px 8px rgba(28,109,158,0.3); }
+        .btn-calc:hover { background: #0e557f; transform: scale(0.98); }
+        .btn-clear { background: #e7f0f5; color: #1c6d9e; border: 1px solid #bed3e0; }
+        .btn-reset { background: #fff3cd; color: #7a5a00; border: 1px solid #f0c040; }
+        .btn-reset:hover { background: #ffe69c; }
+
+        /* ── TOTALES ── */
+        .total-superior-azul {
+            background: #1a6c8f; border-radius: 28px; padding: 20px 28px;
+            margin-bottom: 32px; color: white; box-shadow: 0 8px 20px rgba(0,55,80,0.2);
+        }
+        .total-number-white { font-size: 2.4rem; font-weight: 800; letter-spacing: -0.5px; color: white; }
+
+        /* ── KPI BOXES ── */
+        .kpi-row { display: flex; flex-wrap: wrap; gap: 20px; margin: 20px 0; }
+        .kpi-box { background: #f9fdfe; border-radius: 24px; padding: 18px; flex: 1; border: 1px solid #cde3ee; min-width: 180px; }
+        .kpi-box strong { display: block; margin-bottom: 6px; }
+
+        /* ── ANÁLISIS ── */
+        .analysis {
+            background: #f4fafd; border-radius: 24px; padding: 20px;
+            margin-top: 20px; border-left: 5px solid #2c7fb8; line-height: 1.65;
+        }
+
+        /* ── TABLA DESGLOSE ── */
+        .breakdown-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.9rem; }
+        .breakdown-table th { background: #eaf4f9; color: #185e7c; font-weight: 700; padding: 10px 14px; text-align: left; border-bottom: 2px solid #cde0ea; }
+        .breakdown-table td { padding: 10px 14px; border-bottom: 1px solid #e8f2f8; vertical-align: top; }
+        .breakdown-table tr:hover td { background: #f5fbfe; }
+        .breakdown-table .total-row td { background: #daeef7; font-weight: 700; border-top: 2px solid #2c7fb8; }
+        .breakdown-table .td-right { text-align: right; font-weight: 700; color: #1a6c8f; }
+        .artref { font-size: 0.72rem; color: #7aabb8; font-weight: 400; }
+
+        /* ── CORRECCIÓN BADGE ── */
+        .correction-badge {
+            background: #fff8e1; border: 1.5px solid #f0c040; border-radius: 14px;
+            padding: 12px 18px; margin-bottom: 20px; font-size: 0.82rem; color: #7a5a00; line-height: 1.5;
+        }
+
+        /* ══════════════════════════════
+           DASHBOARD SOSTENIBILIDAD
+        ══════════════════════════════ */
+
+        /* Inputs macro editables */
+        .macro-inputs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            background: #f4fafd;
+            border-radius: 24px;
+            padding: 24px;
+            margin-bottom: 28px;
+            border: 1px solid #cde3ee;
+        }
+        .macro-field { display: flex; flex-direction: column; gap: 6px; }
+        .macro-field label { font-size: 0.78rem; font-weight: 700; color: #185e7c; line-height: 1.3; }
+        .macro-field input {
+            padding: 10px 14px; border: 1.5px solid #cbe0ea; border-radius: 20px;
+            font-size: 0.95rem; font-weight: 600; color: #103a4c; background: white; outline: none;
+        }
+        .macro-field input:focus { border-color: #2c7fb8; box-shadow: 0 0 0 3px rgba(44,127,184,0.1); }
+        .macro-field .field-hint { font-size: 0.68rem; color: #7aabb8; }
+
+        /* Semáforo */
+        .semaforo-wrap {
+            display: flex; align-items: center; gap: 16px;
+            background: white; border-radius: 24px; padding: 20px 28px;
+            border: 2px solid #cde3ee; margin-bottom: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        }
+        .semaforo-luz {
+            width: 52px; height: 52px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; flex-shrink: 0;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+        }
+        .sem-verde  { background: radial-gradient(circle, #4caf50, #2e7d32); }
+        .sem-amarillo { background: radial-gradient(circle, #ffd600, #f9a825); }
+        .sem-rojo   { background: radial-gradient(circle, #f44336, #b71c1c); }
+        .semaforo-texto h3 { font-size: 1.1rem; font-weight: 700; }
+        .semaforo-texto p  { font-size: 0.85rem; color: #4a7a8a; margin-top: 4px; }
+
+        /* Tabla de niveles */
+        .niveles-table { width: 100%; border-collapse: collapse; margin: 0 0 28px; font-size: 0.88rem; }
+        .niveles-table th {
+            background: linear-gradient(90deg, #0a4c6e, #1a7aaa);
+            color: white; font-weight: 700; padding: 12px 16px;
+            text-align: left; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.4px;
+        }
+        .niveles-table th:last-child { text-align: center; }
+        .niveles-table td { padding: 13px 16px; border-bottom: 1px solid #e8f2f8; vertical-align: middle; }
+        .niveles-table tr:hover td { background: #f5fbfe; }
+        .niveles-table .nivel-nombre { font-weight: 700; color: #0a4c6e; }
+        .niveles-table .nivel-formula { font-size: 0.78rem; color: #5a8fa0; font-family: monospace; }
+        .niveles-table .nivel-valor { font-weight: 800; font-family: monospace; font-size: 0.95rem; color: #103a4c; }
+        .niveles-table .nivel-estado { text-align: center; }
+        .estado-badge {
+            display: inline-block; padding: 5px 14px; border-radius: 20px;
+            font-size: 0.75rem; font-weight: 700; white-space: nowrap;
+        }
+        .est-insuf  { background: #fdecea; color: #c62828; border: 1px solid #ef9a9a; }
+        .est-adec   { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
+        .est-exc    { background: #e3f2fd; color: #1565c0; border: 1px solid #90caf9; }
+        .brecha-neg { color: #c62828; font-weight: 700; }
+        .brecha-pos { color: #2e7d32; font-weight: 700; }
+
+        /* KPI macro strip */
+        .macro-kpi-strip {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px; margin-bottom: 24px;
+        }
+        .macro-kpi {
+            border-radius: 20px; padding: 18px 16px; text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+        }
+        .macro-kpi .mk-val { font-size: 1.35rem; font-weight: 800; letter-spacing: -0.5px; }
+        .macro-kpi .mk-lbl { font-size: 0.72rem; font-weight: 600; opacity: 0.75; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.3px; }
+        .mk-blue  { background: linear-gradient(135deg,#0a4c6e,#1e7aaa); color: white; }
+        .mk-red   { background: linear-gradient(135deg,#b71c1c,#ef5350); color: white; }
+        .mk-amber { background: linear-gradient(135deg,#e65100,#ff8f00); color: white; }
+        .mk-green { background: linear-gradient(135deg,#1b5e20,#388e3c); color: white; }
+        .mk-teal  { background: linear-gradient(135deg,#00695c,#26a69a); color: white; }
+
+        /* Brechas resumen */
+        .brechas-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-bottom: 28px; }
+        .brecha-card {
+            border-radius: 20px; padding: 18px 20px;
+            border: 1.5px solid #e0eef5;
+        }
+        .brecha-card .bc-titulo { font-size: 0.78rem; font-weight: 700; color: #185e7c; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 6px; }
+        .brecha-card .bc-valor  { font-size: 1.2rem; font-weight: 800; font-family: monospace; }
+        .brecha-card .bc-sub    { font-size: 0.75rem; color: #7aabb8; margin-top: 4px; }
+        .bc-deficit  { background: #fff5f5; border-color: #ffcdd2; }
+        .bc-deficit .bc-valor { color: #c62828; }
+        .bc-superavit { background: #f1f8e9; border-color: #c5e1a5; }
+        .bc-superavit .bc-valor { color: #2e7d32; }
+
+        /* Charts */
+        .dashboard-charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 28px; margin-bottom: 28px; }
+        .chart-container { background: white; border-radius: 28px; padding: 20px; border: 1px solid #cde0ea; }
+        .chart-container canvas { max-height: 280px; }
+        .chart-title { font-weight: 700; font-size: 0.85rem; color: #0a4c6e; margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.4px; }
+
+        /* Leyendas explicativas */
+        .legend-text { background: #edf5fa; border-radius: 24px; padding: 20px 24px; margin-top: 18px; line-height: 1.7; }
+        .legend-text ul { margin: 8px 0 0 20px; }
+        .legend-text li { margin-bottom: 4px; }
+
+        /* Macro card wrapper */
+        .macro-card { background: #f9fefe; border-radius: 28px; padding: 24px; border: 1px solid #cce0ea; margin-bottom: 24px; }
+        .macro-card h3 { color: #1a6c8f; margin-bottom: 16px; font-size: 1.05rem; }
+
+        /* Pasivo automático badge */
+        .pasivo-auto-badge {
+            display: flex; align-items: center; gap: 12px;
+            background: #e8f4fd; border: 1.5px solid #90caf9; border-radius: 14px;
+            padding: 12px 18px; margin-bottom: 20px; font-size: 0.85rem; color: #0a4c6e;
+        }
+        .pasivo-auto-badge .pa-label { font-weight: 600; }
+        .pasivo-auto-badge .pa-value { font-weight: 800; font-size: 1rem; color: #1565c0; }
+
+        footer { text-align: center; padding: 18px; font-size: 0.73rem; color: #5c8ea8; border-top: 1px solid #cde0ea; }
+
+        @media (max-width: 700px) {
+            body { padding: 12px; }
+            .tab-content { padding: 16px; }
+            .total-number-white { font-size: 1.6rem; }
+            .tabs { padding: 0 12px; }
+            .tab-btn { padding: 12px 12px; font-size: 0.78rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- HEADER -->
+    <div class="header">
+        <div class="logo-copei">🇻🇪 COPEI</div>
+        <div class="title-side">
+            <h1>El Nuevo Camino al Ahorro</h1>
+            <p>Movimiento de Profesionales y Técnicos · Pasivos Laborales en USD (sin retroactividad)</p>
+        </div>
+        <div class="badge">📊 Planificación financiera soberana</div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+        <button class="tab-btn active" data-tab="tab1">📋 1. Pasivos Personal Activo</button>
+        <button class="tab-btn" data-tab="tab2">👥 2. Pensiones y Jubilaciones</button>
+        <button class="tab-btn" data-tab="tab3">📈 3. Dashboard &amp; Sostenibilidad Económica</button>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+         PESTAÑA 1 — PERSONAL ACTIVO
+    ══════════════════════════════════════════════ -->
+    <div id="tab1" class="tab-content active">
+
+        <div class="correction-badge">
+            ⚙️ <strong>Cálculo conforme a LOTTT (Arts. 142, 190, 192, 131/132) — Sin Retroactividad:</strong>
+            Prestaciones: 60 días/año base (15 días × 4 trimestres, Art.142-a) + 2 días adicionales/año desde el 2.° hasta máx. 30 días (Art.142-b) |
+            Vacaciones: 15 días hábiles + 1/año adicional hasta máx 30 días (Art.190) |
+            Bono Vacacional: 15 + 1/año hasta 30 días (Art.192) |
+            Utilidades: mínimo 30 días/año (Arts.131-132) |
+            Cestaticket: bono no salarial (Art.105).
+        </div>
+
+        <div class="form-grid">
+            <div class="input-group">
+                <label>💵 Salario mensual por empleado (USD)</label>
+                <input type="number" id="salario" step="any" placeholder="Ej: 550" min="0">
+            </div>
+            <div class="input-group">
+                <label>🎫 Cestaticket / Bono no salarial (USD/mes)</label>
+                <input type="number" id="bonoNoSalarial" step="any" placeholder="Ej: 120" min="0">
+            </div>
+            <div class="input-group">
+                <label>👥 Cantidad de empleados activos</label>
+                <input type="number" id="empleados" step="1" placeholder="Ej: 12" min="1">
+            </div>
+            <div class="input-group">
+                <label>📅 Antigüedad promedio / Años a calcular</label>
+                <select id="aniosUnificado"></select>
+            </div>
+            <div class="input-group">
+                <label>🍞 Canasta Alimentaria (USD/mes) — opcional</label>
+                <input type="number" id="canastaAlimentaria" step="any" placeholder="Ej: 450" min="0">
+            </div>
+            <div class="input-group">
+                <label>🏠 Canasta Básica (USD/mes) — opcional</label>
+                <input type="number" id="canastaBasica" step="any" placeholder="Ej: 880" min="0">
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn-calc" id="calcularActivoBtn">📐 Calcular Pasivos Activos</button>
+            <button class="btn-clear" id="limpiarActivoBtn">🧹 Limpiar campos activos</button>
+        </div>
+
+        <div class="total-superior-azul">
+            <div style="font-weight:500;">TOTAL PASIVOS LABORALES (PERSONAL ACTIVO) — USD</div>
+            <div class="total-number-white" id="granTotalActivo">$ 0.00</div>
+            <div style="font-size:0.8rem;">🔹 Prestaciones + vacaciones + bono vacacional + utilidades + cestaticket anualizado (sin retroactividad)</div>
+        </div>
+
+        <div id="detalleActivo">
+            <div class="analysis">📋 Complete los datos y presione "Calcular Pasivos Activos".</div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+         PESTAÑA 2 — PENSIONES Y JUBILACIONES
+    ══════════════════════════════════════════════ -->
+    <div id="tab2" class="tab-content">
+        <div class="macro-card">
+            <h3>🏛️ Inversión anual en Pensiones y Jubilaciones (bonificaciones mensuales)</h3>
+            <div class="form-grid">
+                <div class="input-group">
+                    <label>👴 Pensionados IVSS (5.500.000 fijos)</label>
+                    <input type="number" id="pensionadosIVSS" value="5500000" disabled style="background:#eef3f8;">
+                </div>
+                <div class="input-group">
+                    <label>👵 Jubilados (1.300.000 fijos)</label>
+                    <input type="number" id="jubilados" value="1300000" disabled>
+                </div>
+                <div class="input-group">
+                    <label>💰 Bonificación mensual para PENSIONADOS IVSS (USD)</label>
+                    <input type="number" id="bonoPensionado" step="any" placeholder="Ej: 40">
+                </div>
+                <div class="input-group">
+                    <label>💰 Bonificación mensual para JUBILADOS (USD)</label>
+                    <input type="number" id="bonoJubilado" step="any" placeholder="Ej: 35">
+                </div>
+            </div>
+            <div id="resultadoPensionesDetalle" style="background:#eef6fa; border-radius:24px; padding:18px; margin-top:16px;">
+                <p>🔄 Complete los montos y presione "Calcular Inversión Total".</p>
+            </div>
+            <div class="btn-group" style="margin-top:20px;">
+                <button class="btn-calc" id="calcularTotalGeneralBtn">🧮 Calcular Inversión Total (Activo + Pensiones)</button>
+                <button class="btn-clear" id="limpiarPensionesBtn">🧹 Limpiar campos pensiones</button>
+            </div>
+            <div class="total-superior-azul" style="margin-top:24px;">
+                <div>🏦 GRAN TOTAL A AHORRAR (Activo + Pensiones + Jubilaciones) — USD</div>
+                <div class="total-number-white" id="granTotalGeneral">$ 0.00</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+         PESTAÑA 3 — DASHBOARD & SOSTENIBILIDAD
+    ══════════════════════════════════════════════ -->
+    <div id="tab3" class="tab-content">
+
+        <!-- Pasivo automático -->
+        <div class="pasivo-auto-badge">
+            <span>📌</span>
+            <span class="pa-label">Pasivo Anual Total (Gran Total Pestaña 2):</span>
+            <span class="pa-value" id="dash-pasivo-display">$ 0.00 — calcule primero en Pestaña 2</span>
+        </div>
+
+        <!-- Parámetros macro editables -->
+        <div class="macro-card">
+            <h3>⚙️ Parámetros Macroeconómicos Editables</h3>
+            <div class="macro-inputs-grid">
+                <div class="macro-field">
+                    <label>🏦 Reservas Internacionales BCV (USD)</label>
+                    <input type="number" id="p-reservas" value="13700000000" step="any">
+                    <span class="field-hint">Valor BCV estimado</span>
+                </div>
+                <div class="macro-field">
+                    <label>💳 Deuda Externa Total estimada (USD)</label>
+                    <input type="number" id="p-deuda" value="165000000000" step="any">
+                    <span class="field-hint">Rango estimado: 160-170 mil millones</span>
+                </div>
+                <div class="macro-field">
+                    <label>⚠️ % Deuda en mora / atrasos (corto plazo)</label>
+                    <input type="number" id="p-mora" value="25" step="any" min="0" max="100">
+                    <span class="field-hint">Porcentaje de la deuda exigible como CP</span>
+                </div>
+                <div class="macro-field">
+                    <label>🌐 Otros Pasivos Externos / OR (USD)</label>
+                    <input type="number" id="p-or" value="15000000000" step="any">
+                    <span class="field-hint">Inversiones cartera + deuda MLP</span>
+                </div>
+                <div class="macro-field">
+                    <label>💵 M2 — Dinero en sentido amplio (USD)</label>
+                    <input type="number" id="p-m2" value="8000000000" step="any">
+                    <span class="field-hint">Agregado monetario M2</span>
+                </div>
+                <div class="macro-field">
+                    <label>📦 Exportaciones Anuales / X (USD)</label>
+                    <input type="number" id="p-x" value="25000000000" step="any">
+                    <span class="field-hint">Exportaciones de bienes y servicios</span>
+                </div>
+            </div>
+            <div class="btn-group" style="margin-bottom:0;">
+                <button class="btn-calc" id="btnRecalcDash">🔄 Recalcular Dashboard</button>
+                <button class="btn-reset" id="btnResetDash">↩️ Restablecer valores sugeridos</button>
+            </div>
+        </div>
+
+        <!-- Semáforo -->
+        <div class="semaforo-wrap" id="semaforo-wrap">
+            <div class="semaforo-luz sem-rojo" id="sem-luz">⚠️</div>
+            <div class="semaforo-texto">
+                <h3 id="sem-titulo">Sin datos — calcule primero</h3>
+                <p id="sem-desc">Complete las pestañas 1 y 2 y presione Recalcular.</p>
+            </div>
+        </div>
+
+        <!-- KPI macro strip -->
+        <div class="macro-kpi-strip" id="macro-kpi-strip">
+            <div class="macro-kpi mk-blue"><div class="mk-val" id="kpi-pasivo">—</div><div class="mk-lbl">Pasivo Anual Total</div></div>
+            <div class="macro-kpi mk-teal"><div class="mk-val" id="kpi-reservas">—</div><div class="mk-lbl">Reservas BCV</div></div>
+            <div class="macro-kpi mk-red"><div class="mk-val" id="kpi-dct">—</div><div class="mk-lbl">DCTₐ (Deuda CP Ajustada)</div></div>
+            <div class="macro-kpi mk-amber"><div class="mk-val" id="kpi-ara">—</div><div class="mk-lbl">Métrica ARA (FMI)</div></div>
+            <div class="macro-kpi mk-green"><div class="mk-val" id="kpi-cob">—</div><div class="mk-lbl">Cobertura (años)</div></div>
+        </div>
+
+        <!-- Tabla de niveles -->
+        <div class="macro-card">
+            <h3>📊 Niveles de Reservas Recomendados vs. Reservas Actuales</h3>
+            <div style="overflow-x:auto;">
+                <table class="niveles-table" id="tabla-niveles">
+                    <thead><tr>
+                        <th>Nivel / Metodología</th>
+                        <th>Fórmula</th>
+                        <th>Valor Requerido (USD)</th>
+                        <th>Brecha vs. Reservas</th>
+                        <th>Estado</th>
+                    </tr></thead>
+                    <tbody id="tabla-niveles-body">
+                        <tr><td colspan="5" style="text-align:center;color:#7aabb8;padding:20px;">Calcule primero en las pestañas 1 y 2</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Brechas -->
+        <div class="brechas-grid" id="brechas-grid"></div>
+
+        <!-- Charts -->
+        <div class="dashboard-charts">
+            <div class="chart-container">
+                <div class="chart-title">📊 Niveles requeridos vs. Reservas actuales (USD B)</div>
+                <canvas id="chartNiveles"></canvas>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">🥧 Composición del Pasivo Total</div>
+                <canvas id="chartComposicion"></canvas>
+            </div>
+        </div>
+        <div class="dashboard-charts" style="margin-top:0;">
+            <div class="chart-container" style="grid-column:1/-1;">
+                <div class="chart-title">📈 Evolución del pasivo activo según antigüedad (1–30 años) · parámetros actuales</div>
+                <canvas id="lineEvolucion" height="130"></canvas>
+            </div>
+        </div>
+
+        <!-- Explicaciones -->
+        <div class="legend-text" id="legend-tecnico">
+            <strong>📘 Análisis Técnico (PhD en Economía):</strong>
+            <p id="texto-tecnico" style="margin-top:8px;">Calcule los pasivos para ver el análisis completo.</p>
+        </div>
+        <div class="legend-text" style="background:#ecf7fb; margin-top:16px;" id="legend-sencillo">
+            <strong>🗣️ Explicación para el Ciudadano:</strong>
+            <p id="texto-sencillo" style="margin-top:8px;">Calcule los pasivos para ver la explicación sencilla.</p>
+        </div>
+
+    </div><!-- /tab3 -->
+
+    <footer>
+        🔹 Cálculos conforme a LOTTT (2012, sin retroactividad) — Art. 142 · Art. 190 · Art. 192 · Arts. 131-132 · Art. 105 ·
+        Métricas macroeconómicas: ARA-FMI, Guidotti-Greenspan (BIS), Nivel Máxima Seguridad · Versión 2.0 — 2026
+    </footer>
+</div><!-- /container -->
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+//  UTILIDADES
+// ═══════════════════════════════════════════════════════════════
+const fmtUSD = v => new Intl.NumberFormat('en-US', { style:'currency', currency:'USD', minimumFractionDigits:2, maximumFractionDigits:2 }).format(v);
+const fmtB   = v => {
+    const b = v / 1e9;
+    return b.toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 }) + ' B';
+};
+const fmtShort = v => {
+    if (Math.abs(v) >= 1e12) return (v/1e12).toFixed(2) + 'T';
+    if (Math.abs(v) >= 1e9)  return (v/1e9).toFixed(2) + 'B';
+    if (Math.abs(v) >= 1e6)  return (v/1e6).toFixed(2) + 'M';
+    return fmtUSD(v);
+};
+
+// ═══════════════════════════════════════════════════════════════
+//  ESTADO GLOBAL
+// ═══════════════════════════════════════════════════════════════
+let ultimoActivoTotal    = 0;
+let ultimosDatosActivo   = null;
+let ultimoGranTotalGeneral = 0;
+let barChart, donutChart, lineChart, chartNiveles, chartComp;
+
+// Inicializar selector 1–30
+const aniosSelect = document.getElementById('aniosUnificado');
+for (let i = 1; i <= 30; i++) {
+    const o = document.createElement('option');
+    o.value = i; o.textContent = `${i} ${i===1?'año':'años'}`;
+    aniosSelect.appendChild(o);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  CÁLCULO ACTIVO — CORRECTO LOTTT
+// ═══════════════════════════════════════════════════════════════
+function calcularPasivosActivo(salario, bonoMensual, numEmpleados, anios, canastaAlim, canastaBasica) {
+    const sd = salario / 30; // salario diario
+
+    // Art. 142-a: 60 días/año; Art. 142-b: +2/año desde año 2 hasta 30 días adicionales
+    const diasPrestBase = 60 * anios;
+    const diasPrestAdic = Math.min(2 * Math.max(0, anios - 1), 30);
+    const diasPrest = diasPrestBase + diasPrestAdic;
+    const montoPrestEmp = diasPrest * sd;
+    const totalPrest = montoPrestEmp * numEmpleados;
+
+    // Art. 190: vacaciones acumuladas (15+1/año hasta 30)
+    let diasVacAcum = 0;
+    for (let y=1; y<=anios; y++) diasVacAcum += Math.min(15+(y-1), 30);
+    const montoVacEmp = diasVacAcum * sd;
+    const totalVac = montoVacEmp * numEmpleados;
+
+    // Art. 192: bono vacacional acumulado (15+1/año hasta 30)
+    let diasBonVacAcum = 0;
+    for (let y=1; y<=anios; y++) diasBonVacAcum += Math.min(15+(y-1), 30);
+    const montoBonVacEmp = diasBonVacAcum * sd;
+    const totalBonVac = montoBonVacEmp * numEmpleados;
+
+    // Arts. 131-132: 30 días/año mínimo
+    const diasUtil = 30 * anios;
+    const montoUtilEmp = diasUtil * sd;
+    const totalUtil = montoUtilEmp * numEmpleados;
+
+    // Art. 105: cestaticket no salarial
+    const totalCesta = bonoMensual * 12 * anios * numEmpleados;
+
+    const totalPasivo = totalPrest + totalVac + totalBonVac + totalUtil + totalCesta;
+    const montoPorEmp = montoPrestEmp + montoVacEmp + montoBonVacEmp + montoUtilEmp + (bonoMensual*12*anios);
+
+    const ingresoMens = salario + bonoMensual;
+    return {
+        salario, bonoMensual, numEmpleados, anios, sd,
+        diasPrest, diasPrestBase, diasPrestAdic,
+        diasVacAcum, diasBonVacAcum, diasUtil,
+        montoPrestEmp, totalPrest,
+        montoVacEmp, totalVac,
+        montoBonVacEmp, totalBonVac,
+        montoUtilEmp, totalUtil,
+        totalCesta, totalPasivo, montoPorEmp,
+        ingresoMens,
+        coberturaAlim: (canastaAlim&&canastaAlim>0) ? (ingresoMens/canastaAlim)*100 : null,
+        coberturaBas:  (canastaBasica&&canastaBasica>0) ? (ingresoMens/canastaBasica)*100 : null,
+        canastaAlim: canastaAlim||0, canastaBasica: canastaBasica||0
+    };
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  RENDER ACTIVO
+// ═══════════════════════════════════════════════════════════════
+function renderActivo(d) {
+    document.getElementById('granTotalActivo').innerText = fmtUSD(d.totalPasivo);
+    document.getElementById('detalleActivo').innerHTML = `
+      <div class="kpi-row">
+        <div class="kpi-box"><strong>🏦 Prestaciones Sociales</strong>${fmtUSD(d.totalPrest)}<br><span style="font-size:12px;">${d.diasPrestBase} días base + ${d.diasPrestAdic} adicionales = ${d.diasPrest} días × ${d.numEmpleados} emp.</span></div>
+        <div class="kpi-box"><strong>✈️ Vacaciones Remuneradas</strong>${fmtUSD(d.totalVac)}<br><span style="font-size:12px;">${d.diasVacAcum} días acum. (15+1/año hasta 30) × ${d.numEmpleados} emp.</span></div>
+        <div class="kpi-box"><strong>🌴 Bono Vacacional</strong>${fmtUSD(d.totalBonVac)}<br><span style="font-size:12px;">${d.diasBonVacAcum} días acum. (15+1/año hasta 30) × ${d.numEmpleados} emp.</span></div>
+        <div class="kpi-box"><strong>💰 Utilidades</strong>${fmtUSD(d.totalUtil)}<br><span style="font-size:12px;">${d.diasUtil} días (30/año) × ${d.numEmpleados} emp.</span></div>
+        <div class="kpi-box"><strong>🎫 Cestaticket acumulado</strong>${fmtUSD(d.totalCesta)}<br><span style="font-size:12px;">${fmtUSD(d.bonoMensual)}/mes × 12 × ${d.anios} año(s) × ${d.numEmpleados} emp.</span></div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="breakdown-table">
+          <thead><tr><th>Concepto</th><th>Base de cálculo</th><th>Días acum.</th><th>Por empleado</th><th>Total (${d.numEmpleados} emp.)</th></tr></thead>
+          <tbody>
+            <tr><td>Prestaciones Sociales <span class="artref">Art.142-a/b</span></td><td>${d.diasPrestBase} días base + ${d.diasPrestAdic} adicionales</td><td>${d.diasPrest}</td><td class="td-right">${fmtUSD(d.montoPrestEmp)}</td><td class="td-right">${fmtUSD(d.totalPrest)}</td></tr>
+            <tr><td>Vacaciones Remuneradas <span class="artref">Art.190</span></td><td>15 días año 1 + 1 día/año (máx 30)</td><td>${d.diasVacAcum}</td><td class="td-right">${fmtUSD(d.montoVacEmp)}</td><td class="td-right">${fmtUSD(d.totalVac)}</td></tr>
+            <tr><td>Bono Vacacional <span class="artref">Art.192</span></td><td>15 días año 1 + 1 día/año (máx 30)</td><td>${d.diasBonVacAcum}</td><td class="td-right">${fmtUSD(d.montoBonVacEmp)}</td><td class="td-right">${fmtUSD(d.totalBonVac)}</td></tr>
+            <tr><td>Utilidades <span class="artref">Arts.131-132</span></td><td>30 días/año mínimo legal</td><td>${d.diasUtil}</td><td class="td-right">${fmtUSD(d.montoUtilEmp)}</td><td class="td-right">${fmtUSD(d.totalUtil)}</td></tr>
+            <tr><td>Cestaticket <span class="artref">Art.105</span></td><td>${fmtUSD(d.bonoMensual)}/mes × 12 × ${d.anios} año(s)</td><td>—</td><td class="td-right">${fmtUSD(d.bonoMensual*12*d.anios)}</td><td class="td-right">${fmtUSD(d.totalCesta)}</td></tr>
+          </tbody>
+          <tfoot><tr class="total-row"><td colspan="3"><strong>TOTAL PASIVOS LABORALES</strong></td><td class="td-right">${fmtUSD(d.montoPorEmp)}</td><td class="td-right">${fmtUSD(d.totalPasivo)}</td></tr></tfoot>
+        </table>
+      </div>
+      <div class="analysis">
+        <strong>📐 Análisis Técnico (LOTTT sin retroactividad):</strong><br><br>
+        <strong>Art.142-a/b:</strong> Sin retroactividad se usa la garantía acumulada: 60 días/año (15 días × 4 trimestres) + ${d.diasPrestAdic} días adicionales acumulados desde el 2.° año (máx. 30). Total: <strong>${d.diasPrest} días</strong>.<br>
+        <strong>Art.190:</strong> Vacaciones crecen: año 1 = 15 días, año 2 = 16, … máx. 30. Acumulado: <strong>${d.diasVacAcum} días</strong>.<br>
+        <strong>Art.192:</strong> Bono vacacional: misma escala. Acumulado: <strong>${d.diasBonVacAcum} días</strong>.<br>
+        <strong>Arts.131-132:</strong> Utilidades: 30 días/año. Total: <strong>${d.diasUtil} días</strong>.<br>
+        <strong>Art.105:</strong> Cestaticket: bono no remunerativo; no entra en base de prestaciones. Acumulado: ${fmtUSD(d.totalCesta)}.
+        ${d.coberturaAlim ? `<br><br>📊 El ingreso mensual cubre el <strong>${d.coberturaAlim.toFixed(1)}% de la Canasta Alimentaria</strong>${d.coberturaBas?` y el <strong>${d.coberturaBas.toFixed(1)}% de la Canasta Básica</strong>`:''}.` : ''}
+      </div>
+      <div class="analysis" style="background:#ecf5f9; border-left-color:#2ca87f;">
+        <strong>💬 Explicación Sencilla:</strong><br>
+        Con <strong>${d.numEmpleados} trabajadores</strong> y promedio de <strong>${d.anios} año(s)</strong>, su empresa necesitaría <strong>${fmtUSD(d.totalPasivo)}</strong> para liquidar a toda su plantilla hoy. El concepto más costoso es Prestaciones Sociales (${fmtUSD(d.totalPrest)}). A mayor antigüedad, el pasivo crece porque vacaciones y bono vacacional también aumentan 1 día por año.
+      </div>
+    `;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  DASHBOARD — CÁLCULO MACROECONÓMICO
+// ═══════════════════════════════════════════════════════════════
+const DEFAULTS = {
+    reservas: 13_700_000_000,
+    deuda:   165_000_000_000,
+    mora:    25,
+    or:       15_000_000_000,
+    m2:        8_000_000_000,
+    x:        25_000_000_000
+};
+
+function getParam(id) { return parseFloat(document.getElementById(id).value) || 0; }
+
+function calcularMacro() {
+    const pasivo    = ultimoGranTotalGeneral || ultimoActivoTotal || 0;
+    const reservas  = getParam('p-reservas');
+    const deuda     = getParam('p-deuda');
+    const mora      = getParam('p-mora') / 100;
+    const OR        = getParam('p-or');
+    const M2        = getParam('p-m2');
+    const X         = getParam('p-x');
+
+    // Deuda de Corto Plazo Ajustada
+    const DCTa = deuda * mora;
+
+    // a) ARA = 0.30×DCTa + 0.20×OR + 0.10×M2 + 0.10×X
+    const ARA = 0.30*DCTa + 0.20*OR + 0.10*M2 + 0.10*X;
+
+    // b) Guidotti puro
+    const guidottiPuro = DCTa;
+
+    // c) Guidotti modificado
+    const guidottiMod = DCTa + pasivo * 0.5;
+
+    // d) Óptimo FMI
+    const optinoFMI = ARA * 1.5;
+
+    // e) Máxima seguridad
+    const maxSeguridad = DCTa + pasivo;
+
+    // Cobertura en años
+    const cobertura = pasivo > 0 ? reservas / pasivo : null;
+
+    return { pasivo, reservas, DCTa, ARA, guidottiPuro, guidottiMod, optinoFMI, maxSeguridad, cobertura, OR, M2, X, deuda, mora };
+}
+
+function estadoVsReservas(valor, reservas) {
+    const brecha = reservas - valor;
+    const pct = valor > 0 ? ((reservas/valor)*100).toFixed(1) : '—';
+    if (brecha >= 0) return { clase: 'est-adec', label: `✅ Adecuado (+${fmtB(brecha)})`, brecha, positivo: true };
+    return { clase: 'est-insuf', label: `❌ Insuficiente (déficit ${fmtB(Math.abs(brecha))})`, brecha, positivo: false };
+}
+
+function renderDashboard() {
+    const m = calcularMacro();
+
+    // Badge pasivo
+    document.getElementById('dash-pasivo-display').textContent =
+        m.pasivo > 0 ? fmtUSD(m.pasivo) : '$ 0.00 — calcule en Pestaña 2';
+
+    // KPIs strip
+    document.getElementById('kpi-pasivo').textContent   = fmtShort(m.pasivo);
+    document.getElementById('kpi-reservas').textContent = fmtShort(m.reservas);
+    document.getElementById('kpi-dct').textContent      = fmtShort(m.DCTa);
+    document.getElementById('kpi-ara').textContent      = fmtShort(m.ARA);
+    document.getElementById('kpi-cob').textContent      = m.cobertura != null ? m.cobertura.toFixed(2) + ' a' : '—';
+
+    // Semáforo
+    const sem = document.getElementById('sem-luz');
+    const semT = document.getElementById('sem-titulo');
+    const semD = document.getElementById('sem-desc');
+    sem.className = 'semaforo-luz';
+    if (m.reservas >= m.optinoFMI) {
+        sem.classList.add('sem-verde'); sem.textContent = '✅';
+        semT.textContent = '🟢 SITUACIÓN ADECUADA — Reservas ≥ Óptimo FMI';
+        semD.textContent = `Las reservas (${fmtB(m.reservas)}) superan el umbral óptimo del FMI (${fmtB(m.optinoFMI)}).`;
+    } else if (m.reservas >= m.guidottiPuro) {
+        sem.classList.add('sem-amarillo'); sem.textContent = '⚠️';
+        semT.textContent = '🟡 ALERTA — Reservas entre Mínimo Guidotti y Óptimo FMI';
+        semD.textContent = `Las reservas (${fmtB(m.reservas)}) superan el piso de Guidotti (${fmtB(m.guidottiPuro)}) pero no alcanzan el óptimo FMI (${fmtB(m.optinoFMI)}).`;
+    } else {
+        sem.classList.add('sem-rojo'); sem.textContent = '🚨';
+        semT.textContent = '🔴 RIESGO CRÍTICO — Reservas < Mínimo Guidotti';
+        semD.textContent = `Las reservas (${fmtB(m.reservas)}) caen por debajo del mínimo de Guidotti (${fmtB(m.guidottiPuro)}). Riesgo severo de debt distress.`;
+    }
+
+    // Tabla de niveles
+    const niveles = [
+        { nombre:'Mínimo Guidotti (puro)', formula:'DCTₐ = Deuda × %mora', valor: m.guidottiPuro },
+        { nombre:'Aceptable Guidotti (modificado)', formula:'DCTₐ + 0.5 × Pasivo Anual', valor: m.guidottiMod },
+        { nombre:'Óptimo FMI (ARA × 1.5)', formula:'1.5 × (0.30·DCTₐ + 0.20·OR + 0.10·M2 + 0.10·X)', valor: m.optinoFMI },
+        { nombre:'Máxima Seguridad', formula:'DCTₐ + Pasivo Anual', valor: m.maxSeguridad },
+    ];
+    const tbodyHTML = niveles.map(n => {
+        const e = estadoVsReservas(n.valor, m.reservas);
+        const brechaText = e.positivo
+            ? `<span class="brecha-pos">+${fmtUSD(e.brecha)}</span>`
+            : `<span class="brecha-neg">−${fmtUSD(Math.abs(e.brecha))}</span>`;
+        return `<tr>
+            <td class="nivel-nombre">${n.nombre}</td>
+            <td class="nivel-formula">${n.formula}</td>
+            <td class="nivel-valor">${fmtUSD(n.valor)}</td>
+            <td>${brechaText}</td>
+            <td class="nivel-estado"><span class="estado-badge ${e.clase}">${e.positivo?'✅ Adecuado':'❌ Insuficiente'}</span></td>
+        </tr>`;
+    }).join('');
+    document.getElementById('tabla-niveles-body').innerHTML = tbodyHTML;
+
+    // Brechas grid
+    const brechaItems = niveles.map(n => {
+        const brecha = m.reservas - n.valor;
+        const positivo = brecha >= 0;
+        return `<div class="brecha-card ${positivo?'bc-superavit':'bc-deficit'}">
+            <div class="bc-titulo">${n.nombre}</div>
+            <div class="bc-valor">${positivo?'+':'-'}${fmtUSD(Math.abs(brecha))}</div>
+            <div class="bc-sub">${positivo?'Reservas suficientes':'Déficit de reservas'}</div>
+        </div>`;
+    });
+    document.getElementById('brechas-grid').innerHTML = brechaItems.join('');
+
+    // ── GRÁFICO DE NIVELES ──
+    if (chartNiveles) chartNiveles.destroy();
+    const ctxN = document.getElementById('chartNiveles').getContext('2d');
+    const nLabels = ['Reservas\nActuales','Guidotti\nPuro','Guidotti\nMod.','Óptimo\nFMI','Máx.\nSeguridad'];
+    const nValues = [m.reservas, m.guidottiPuro, m.guidottiMod, m.optinoFMI, m.maxSeguridad].map(v=>v/1e9);
+    const nColors = [
+        m.reservas >= m.optinoFMI ? '#388e3c' : m.reservas >= m.guidottiPuro ? '#f9a825' : '#f44336',
+        '#1565c0','#1976d2','#0288d1','#01579b'
+    ];
+    chartNiveles = new Chart(ctxN, {
+        type: 'bar',
+        data: {
+            labels: nLabels,
+            datasets: [{
+                label: 'USD (miles de millones)',
+                data: nValues,
+                backgroundColor: nColors,
+                borderRadius: 10,
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false },
+                tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.y.toFixed(2)} B USD` } } },
+            scales: { y: { ticks: { callback: v => v.toFixed(0)+'B' }, grid: { color: '#f0f7fc' } } }
+        }
+    });
+
+    // ── GRÁFICO DE COMPOSICIÓN ──
+    if (chartComp) chartComp.destroy();
+    const ctxC = document.getElementById('chartComposicion').getContext('2d');
+    if (ultimosDatosActivo && ultimoGranTotalGeneral > 0) {
+        const d = ultimosDatosActivo;
+        const pensTotal = ultimoGranTotalGeneral - ultimoActivoTotal;
+        chartComp = new Chart(ctxC, {
+            type: 'doughnut',
+            data: {
+                labels: ['Prestaciones', 'Vacaciones', 'Bono Vac.', 'Utilidades', 'Cestaticket', 'Pensiones/Jub.'],
+                datasets: [{ data: [d.totalPrest, d.totalVac, d.totalBonVac, d.totalUtil, d.totalCesta, pensTotal],
+                    backgroundColor: ['#1565c0','#1976d2','#0288d1','#0097a7','#26a69a','#e65100'],
+                    borderWidth: 2, borderColor: '#fff', hoverOffset: 6 }]
+            },
+            options: { responsive: true, plugins: { legend: { position:'bottom', labels:{ font:{size:11} } },
+                tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${fmtUSD(ctx.parsed)}` } } } }
+        });
+    } else {
+        chartComp = new Chart(ctxC, { type:'doughnut', data:{ labels:['Sin datos'], datasets:[{ data:[1], backgroundColor:['#e0e0e0'] }] }, options:{ responsive:true } });
+    }
+
+    // ── GRÁFICO LÍNEA EVOLUCIÓN ──
+    if (lineChart) lineChart.destroy();
+    if (ultimosDatosActivo) {
+        const d = ultimosDatosActivo;
+        const llabels = [], ldata = [];
+        for (let y=1; y<=30; y++) {
+            const lc = calcularPasivosActivo(d.salario, d.bonoMensual, d.numEmpleados, y, null, null);
+            llabels.push(y+'a'); ldata.push(lc.totalPasivo/1e6);
+        }
+        const ctxL = document.getElementById('lineEvolucion').getContext('2d');
+        lineChart = new Chart(ctxL, {
+            type:'line',
+            data:{ labels:llabels, datasets:[{
+                label:'Pasivo Total (USD M)', data:ldata,
+                fill:true, borderColor:'#1976d2', backgroundColor:'rgba(25,118,210,0.08)',
+                pointBackgroundColor:'#1565c0', pointRadius:3, tension:0.4
+            }]},
+            options:{ responsive:true, plugins:{ legend:{display:false},
+                tooltip:{ callbacks:{ label: ctx=> ` $${ctx.parsed.y.toFixed(2)} M USD` } } },
+                scales:{ y:{ ticks:{ callback: v=> '$'+v.toFixed(0)+'M' } } } }
+        });
+    }
+
+    // ── ANÁLISIS TÉCNICO ──
+    const pB = (m.pasivo/1e9).toFixed(2);
+    const rB = (m.reservas/1e9).toFixed(2);
+    const dctB = (m.DCTa/1e9).toFixed(2);
+    const araB = (m.ARA/1e9).toFixed(2);
+    const cobStr = m.cobertura != null ? m.cobertura.toFixed(1) : '—';
+    document.getElementById('texto-tecnico').innerHTML = `
+        La evaluación de adecuación de reservas se basa en tres metodologías complementarias.
+        La <strong>métrica ARA del FMI</strong> (Assessing Reserve Adequacy) —que en este escenario arroja
+        <strong>$${araB}B</strong>— pondera el riesgo de drenaje de liquidez proveniente de deuda de corto plazo
+        reclasificada (DCTₐ = $${dctB}B, siendo el ${(getParam('p-mora'))}% de la deuda total en mora o atrasos),
+        otros pasivos externos, M2 y exportaciones. El nivel óptimo (ARA×1.5 = <strong>$${((m.optinoFMI)/1e9).toFixed(2)}B</strong>)
+        representa el colchón anticrisis ante <em>rollover risk</em> simultáneo. La <strong>regla de Guidotti-Greenspan</strong>,
+        avalada por el BIS, exige cubrir íntegramente la deuda de corto plazo: $${dctB}B. En su versión modificada,
+        incorpora el 50% del pasivo social anual como riesgo contingente adicional ($${((m.guidottiMod)/1e9).toFixed(2)}B).
+        Con reservas actuales de <strong>$${rB}B</strong> y un pasivo anual total de <strong>$${pB}B</strong>,
+        la cobertura es de solo <strong>${cobStr} años</strong>, lo que evidencia una exposición severa a
+        <em>debt distress</em> y presiones cambiarias ante cualquier shock externo.
+    `;
+
+    // ── EXPLICACIÓN SENCILLA ──
+    const montoFam = m.pasivo >= 1e9 ? ((m.pasivo/1e9).toFixed(1)+' mil millones') : fmtUSD(m.pasivo);
+    document.getElementById('texto-sencillo').innerHTML = `
+        Imagina que el país es una familia que tiene que pagar cada año <strong>${fmtUSD(m.pasivo)}</strong>
+        entre sueldos de empleados públicos, pensiones y jubilaciones. Además, esa familia tiene deudas
+        viejas que no ha estado pagando (por eso el <strong>${getParam('p-mora')}%</strong> de su deuda total
+        se considera urgente). Los ahorros del país en el banco central son <strong>${fmtUSD(m.reservas)}</strong>.
+        Los organismos internacionales dicen que para estar tranquilos, esos ahorros deberían ser por lo menos
+        <strong>${fmtUSD(m.guidottiPuro)}</strong> (regla básica), o idealmente <strong>${fmtUSD(m.optinoFMI)}</strong>
+        (estándar del Fondo Monetario Internacional). Hoy solo tenemos <strong>${fmtUSD(m.reservas)}</strong>,
+        lo que significa que estamos en una situación de <strong>alto riesgo financiero</strong>: si algo
+        sale mal —una caída del petróleo, una crisis bancaria— el país tendría serias dificultades para
+        cumplir con sus compromisos. Necesitamos ahorrar mucho más. La calculadora muestra exactamente
+        cuánto más falta para cada nivel de seguridad.
+    `;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  PENSIONES Y TOTAL
+// ═══════════════════════════════════════════════════════════════
+function calcularPensionesYTotal() {
+    if (ultimoActivoTotal === 0 || !ultimosDatosActivo) {
+        alert("⚠️ Primero calcule los pasivos del personal activo en la pestaña 1."); return;
+    }
+    const bonoPens = parseFloat(document.getElementById('bonoPensionado').value) || 0;
+    const bonoJub  = parseFloat(document.getElementById('bonoJubilado').value)   || 0;
+    const pensionados = 5_500_000, jubilados = 1_300_000;
+    const costoPens = bonoPens * 12 * pensionados;
+    const costoJub  = bonoJub  * 12 * jubilados;
+    const subTotal  = costoPens + costoJub;
+    const granTotal = ultimoActivoTotal + subTotal;
+    ultimoGranTotalGeneral = granTotal;
+
+    document.getElementById('resultadoPensionesDetalle').innerHTML = `
+        <div style="font-weight:bold;">📌 DESGLOSE INVERSIÓN PENSIONES (anual)</div>
+        <div>👴 Pensionados IVSS (5.500.000) × ${fmtUSD(bonoPens)}/mes = <strong>${fmtUSD(costoPens)}</strong></div>
+        <div>👵 Jubilados (1.300.000) × ${fmtUSD(bonoJub)}/mes = <strong>${fmtUSD(costoJub)}</strong></div>
+        <div style="margin-top:8px;border-top:1px solid #bcd8e8;padding-top:6px;">✅ SUBTOTAL: <strong>${fmtUSD(subTotal)}</strong></div>
+        <div>➕ TOTAL PASIVOS ACTIVO: ${fmtUSD(ultimoActivoTotal)}</div>
+        <div style="margin-top:8px;font-weight:bold;">🔹 GRAN TOTAL GENERAL: ${fmtUSD(granTotal)}</div>
+    `;
+    document.getElementById('granTotalGeneral').innerText = fmtUSD(granTotal);
+    renderDashboard();
+}
+
+function limpiarPensiones() {
+    document.getElementById('bonoPensionado').value = '';
+    document.getElementById('bonoJubilado').value   = '';
+    document.getElementById('resultadoPensionesDetalle').innerHTML = '<p>🔄 Complete los montos y presione "Calcular Inversión Total".</p>';
+    document.getElementById('granTotalGeneral').innerText = '$ 0.00';
+    ultimoGranTotalGeneral = 0;
+    renderDashboard();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  CALCULAR ACTIVO
+// ═══════════════════════════════════════════════════════════════
+function calcularActivo() {
+    const salario = parseFloat(document.getElementById('salario').value);
+    const bono    = parseFloat(document.getElementById('bonoNoSalarial').value) || 0;
+    const emp     = parseInt(document.getElementById('empleados').value);
+    const anios   = parseInt(document.getElementById('aniosUnificado').value) || 1;
+    const cAlim   = parseFloat(document.getElementById('canastaAlimentaria').value) || null;
+    const cBasic  = parseFloat(document.getElementById('canastaBasica').value) || null;
+
+    if (isNaN(salario)||salario<=0) { alert("Ingrese un salario mensual válido (USD)."); return; }
+    if (isNaN(emp)||emp<=0)          { alert("Ingrese una cantidad de empleados válida."); return; }
+
+    const data = calcularPasivosActivo(salario, bono, emp, anios, cAlim, cBasic);
+    ultimosDatosActivo  = data;
+    ultimoActivoTotal   = data.totalPasivo;
+    renderActivo(data);
+    renderDashboard();
+
+    if (document.getElementById('bonoPensionado').value || document.getElementById('bonoJubilado').value) {
+        calcularPensionesYTotal();
+    } else {
+        document.getElementById('resultadoPensionesDetalle').innerHTML =
+            `<p>🔄 Pasivo activo: ${fmtUSD(ultimoActivoTotal)}. Defina bonificaciones y calcule el total.</p>`;
+        document.getElementById('granTotalGeneral').innerText = '$ 0.00';
+    }
+}
+
+function limpiarActivo() {
+    ['salario','bonoNoSalarial','empleados','canastaAlimentaria','canastaBasica'].forEach(id => document.getElementById(id).value='');
+    aniosSelect.value='1';
+    document.getElementById('detalleActivo').innerHTML='<div class="analysis">📋 Complete los datos y presione "Calcular Pasivos Activos".</div>';
+    document.getElementById('granTotalActivo').innerText='$ 0.00';
+    [barChart,donutChart,lineChart,chartNiveles,chartComp].forEach(c=>{ if(c) c.destroy(); });
+    barChart=donutChart=lineChart=chartNiveles=chartComp=null;
+    ultimoActivoTotal=0; ultimosDatosActivo=null; ultimoGranTotalGeneral=0;
+    document.getElementById('resultadoPensionesDetalle').innerHTML='<p>🔄 Complete los montos y presione "Calcular Inversión Total".</p>';
+    document.getElementById('granTotalGeneral').innerText='$ 0.00';
+    renderDashboard();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  EVENTOS
+// ═══════════════════════════════════════════════════════════════
+document.getElementById('calcularActivoBtn').addEventListener('click', calcularActivo);
+document.getElementById('limpiarActivoBtn').addEventListener('click', limpiarActivo);
+document.getElementById('calcularTotalGeneralBtn').addEventListener('click', calcularPensionesYTotal);
+document.getElementById('limpiarPensionesBtn').addEventListener('click', limpiarPensiones);
+document.getElementById('btnRecalcDash').addEventListener('click', renderDashboard);
+document.getElementById('btnResetDash').addEventListener('click', () => {
+    document.getElementById('p-reservas').value = DEFAULTS.reservas;
+    document.getElementById('p-deuda').value    = DEFAULTS.deuda;
+    document.getElementById('p-mora').value     = DEFAULTS.mora;
+    document.getElementById('p-or').value       = DEFAULTS.or;
+    document.getElementById('p-m2').value       = DEFAULTS.m2;
+    document.getElementById('p-x').value        = DEFAULTS.x;
+    renderDashboard();
+});
+
+// Recalc automático al cambiar cualquier campo macro
+['p-reservas','p-deuda','p-mora','p-or','p-m2','p-x'].forEach(id => {
+    document.getElementById(id).addEventListener('change', renderDashboard);
+});
+
+// Tabs
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const tabId = btn.getAttribute('data-tab');
+        document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        btn.classList.add('active');
+        if (tabId==='tab3') renderDashboard();
+    });
+});
+
+// Render inicial del dashboard (con valores por defecto)
+renderDashboard();
+</script>
+</body>
+</html>
